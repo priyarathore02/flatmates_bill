@@ -1,27 +1,36 @@
-from flat import Bill, Flatmate
-from reports import PdfReport
+from flask.views import MethodView
+from wtforms import Form, StringField, SubmitField
+from flask import Flask , render_template
 
-amount = float(input("Enter amount: "))
-period = input("Enter period: ")
-name1 = input("Enter first flatmate name: ")
-days_in_house1 = int(input(f"Enter number of days did {name1} stayed in house: "))
-name2 = input("Enter second flatmate name: ")
-days_in_house2 = int(input(f"Enter number of days did {name2} stayed in house: "))
+from wtforms.validators import DataRequired
+
+app=Flask(__name__)
 
 
-the_bill = Bill(amount, period)
-flatmate1 = Flatmate(name1, days_in_house1)
-flatmate2 = Flatmate(name2, days_in_house2)
+class HomePage(MethodView):
+    def get(self):
+        return render_template('index.html')
+class BillFormPage(MethodView):
+    def get(self):
+        bill_form = BillForm()
+        return render_template("bill_form_page.html", billform=bill_form)
 
-print(f"{name1} pays: ",flatmate1.pays(the_bill,flatmate2))
-print(f"{name2} pays:",flatmate2.pays(the_bill,flatmate1))
+class ResultsPage(MethodView):
+    pass
+class BillForm(Form):
+    amount = StringField('Bill Amount: ')
+    period = StringField('Bill Period: ')
 
-pdf_report = PdfReport(f"{the_bill.period}.pdf")
-pdf_report.generate_pdf(flatmate1,flatmate2 , the_bill)
+    name1=StringField('Name 1: ')
+    days_in_house1=StringField('Days in the House: ')
+
+    name2 = StringField('Name 2: ')
+    days_in_house2 = StringField('Days in the House: ')
+
+    Button= SubmitField('Calculate')
 
 
+app.add_url_rule('/',view_func=HomePage.as_view('home_page'))
+app.add_url_rule('/bill',view_func=BillFormPage.as_view('bill_form_page'))
 
-
-
-
-
+app.run(debug=True)
